@@ -25,12 +25,13 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/bobapp'),
-      subdir: '.',
-      reporters: [
-        { type: 'html' },
-        { type: 'text-summary' }
-      ]
+    dir: require('path').join(__dirname, './coverage/bobapp'),
+    subdir: '.',
+    reporters: [
+    { type: 'html' },
+    { type: 'text-summary' },
+    { type: 'lcov' }  // Ajout du reporter lcov
+    ]
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
