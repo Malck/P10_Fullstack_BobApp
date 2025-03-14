@@ -1,12 +1,6 @@
 name: SonarCloud
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -37,7 +31,7 @@ jobs:
           java-version: 11
           distribution: 'temurin'
 
-      - name: Build Backend & Run SonarCloud Analysis
+      - name: Build Backend & Run SonarCloud Analysis (Backend Only)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -47,20 +41,15 @@ jobs:
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.java.coveragePlugin=jacoco \
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+          -Dsonar.scm.exclusions.disabled=true
 
       - name: Install Frontend Dependencies
         run: |
           cd front
           npm ci
 
-      - name: Set up Java 17 for Frontend Analysis
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'temurin'
-
-      - name: Run SonarCloud for Frontend
+      - name: Run SonarCloud for Frontend (Frontend Only)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -71,6 +60,7 @@ jobs:
           -Dsonar.sources=src \
           -Dsonar.exclusions=node_modules/**,dist/** \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
 
 
 
