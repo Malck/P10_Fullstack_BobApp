@@ -31,7 +31,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
 
-      - name: Set up Java
+      - name: Set up Java for Backend Analysis
         uses: actions/setup-java@v3
         with:
           java-version: 11
@@ -52,6 +52,12 @@ jobs:
           cd front
           npm ci
 
+      - name: Set up Java 17 for Frontend Analysis
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
       - name: Run SonarCloud for Frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -61,4 +67,3 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=src \
           -Dsonar.exclusions=node_modules/**,dist/**
-
