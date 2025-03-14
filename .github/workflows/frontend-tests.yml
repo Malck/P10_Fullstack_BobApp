@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 14  # Changement de Node 18 à 14
 
       - name: Install dependencies
         working-directory: front
@@ -25,11 +25,23 @@ jobs:
 
       - name: Run tests and generate reports
         working-directory: front
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        run: |
+          npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+          # Affiche les fichiers générés dans coverage/bobapp
+          echo "=== Contenu de coverage/bobapp ==="
+          ls -R coverage/bobapp
+          # Affiche le contenu de lcov.info si présent
+          if [ -f "coverage/bobapp/lcov.info" ]; then 
+            echo "✅ lcov.info trouvé ! Voici son contenu :"; 
+            cat coverage/bobapp/lcov.info;
+          else 
+            echo "❌ lcov.info NON trouvé !"; 
+          fi
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
           name: frontend-test-report
           path: front/coverage
+
 
