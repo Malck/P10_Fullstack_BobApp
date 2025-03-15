@@ -1,10 +1,10 @@
-name: SonarCloud
+name: SonarCloud Analysis
 
 on:
   workflow_dispatch:
 
 jobs:
-  sonarcloud:
+  sonarcloud-backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-backend
 
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -28,10 +28,10 @@ jobs:
       - name: Set up Java for Backend Analysis
         uses: actions/setup-java@v3
         with:
-          java-version: 11
+          java-version: 17  # Utilisez Java 17 pour la compatibilité avec le plugin Sonar Maven
           distribution: 'temurin'
 
-      - name: Build Backend & Run SonarCloud Analysis (Backend Only)
+      - name: Build Backend & Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -41,15 +41,31 @@ jobs:
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.java.coveragePlugin=jacoco \
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-          -Dsonar.scm.exclusions.disabled=true
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+  sonarcloud-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Désactive les clones superficiels pour une meilleure analyse
 
       - name: Install Frontend Dependencies
         run: |
           cd front
           npm ci
 
-      - name: Run SonarCloud for Frontend (Frontend Only)
+      - name: Run Tests and Generate Coverage Report
+        run: |
+          cd front
+          npm test -- --code-coverage --browsers=ChromeHeadless
+          # Affiche les fichiers générés dans coverage
+          echo "=== Contenu de coverage ==="
+          ls -R coverage
+
+      - name: Run SonarCloud for Frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -59,9 +75,7 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=src \
           -Dsonar.exclusions=node_modules/**,dist/** \
-          -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
-
-
+          -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
 
 
 
