@@ -1,4 +1,4 @@
-name: SonarCloud Analysis
+name: SonarCloud 
 
 on:
   workflow_dispatch:
@@ -55,17 +55,25 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd front
-          npm ci
+          npm install  # On essaye npm install au lieu de npm ci
 
       - name: Run Tests and Generate Coverage Report
         run: |
-          echo "Début des tests Angular"
+          echo "=== Lancement des tests Angular ==="
           cd front
-          # Ignore les erreurs non critiques pendant les tests
           npm test -- --code-coverage --browsers=ChromeHeadless --watch=false || true
-          echo "Tests Angular terminés"
+          echo "=== Tests Angular terminés ==="
           echo "=== Contenu de coverage ==="
-          ls -R coverage
+          ls -R coverage  # On vérifie bien où est généré le fichier lcov.info
+
+      - name: Check if lcov.info exists
+        run: |
+          if [ ! -f front/coverage/bobapp/lcov.info ]; then 
+            echo "Fichier lcov.info non trouvé, vérifie les tests !"; 
+            exit 1; 
+          else 
+            echo "Fichier lcov.info trouvé !"; 
+          fi
 
       - name: Run SonarCloud for Frontend
         env:
@@ -78,3 +86,4 @@ jobs:
           -Dsonar.sources=src \
           -Dsonar.exclusions=node_modules/**,dist/** \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
