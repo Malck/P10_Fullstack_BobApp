@@ -25,11 +25,10 @@ jobs:
           node-version: 14
 
       - name: Install Frontend Dependencies & Run Tests
+        working-directory: ./front  # Spécifie le dossier front directement
         run: |
-          cd front
           npm ci
           npm test -- --code-coverage --browsers=ChromeHeadless --watch=false
-        working-directory: front
 
       - name: Set up Java for Backend Analysis
         uses: actions/setup-java@v3
@@ -47,5 +46,3 @@ jobs:
           -Dsonar.projectKey=Malck_P10_Fullstack_BobApp \
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io
-
-
