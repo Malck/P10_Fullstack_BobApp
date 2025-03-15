@@ -1,10 +1,10 @@
-name: SonarCloud 
+name: SonarCloud Analysis
 
 on:
   workflow_dispatch:
 
 jobs:
-  sonarcloud-backend:
+  sonarcloud:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,59 +13,48 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-backend
-
+      # Cacher les packages Maven
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
 
+      # Installer Java pour l'analyse backend
       - name: Set up Java for Backend Analysis
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'temurin'
 
+      # Analyse backend avec Maven + Envoi de rapport Jacoco
       - name: Build Backend & Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd back
-          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar \
+          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=Malck_P10_Fullstack_BobApp \
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.java.coveragePlugin=jacoco \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-  sonarcloud-frontend:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
+      # Installer les dépendances frontend
       - name: Install Frontend Dependencies
         run: |
           cd front
-          npm install  # On essaye npm install au lieu de npm ci
+          npm install
 
-      - name: Run Tests and Generate Coverage Report
+      # Lancer les tests Angular et générer la couverture
+      - name: Run Angular Tests
         run: |
-          echo "=== Lancement des tests Angular ==="
           cd front
           npm test -- --code-coverage --browsers=ChromeHeadless --watch=false || true
-          echo "=== Tests Angular terminés ==="
-          echo "=== Contenu de coverage ==="
-          ls -R coverage  # On vérifie bien où est généré le fichier lcov.info
+          echo "=== Listing coverage folder ==="
+          ls -R coverage
 
+      # Vérifier l'existence de lcov.info
       - name: Check if lcov.info exists
         run: |
           if [ ! -f front/coverage/bobapp/lcov.info ]; then 
@@ -73,17 +62,21 @@ jobs:
             exit 1; 
           else 
             echo "Fichier lcov.info trouvé !"; 
+            cat front/coverage/bobapp/lcov.info
           fi
 
-      - name: Run SonarCloud for Frontend
+      # Fusionner les rapports de couverture et les envoyer à SonarCloud
+      - name: Run SonarCloud Analysis (Frontend)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd front
-          npx sonar-scanner -Dsonar.projectKey=Malck_P10_Fullstack_BobApp \
-          -Dsonar.organization=malck \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.sources=src \
-          -Dsonar.exclusions=node_modules/**,dist/** \
-          -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+          npx sonar-scanner \
+            -Dsonar.projectKey=Malck_P10_Fullstack_BobApp \
+            -Dsonar.organization=malck \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.sources=src \
+            -Dsonar.exclusions=node_modules/**,dist/** \
+            -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
 
