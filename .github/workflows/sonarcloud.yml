@@ -25,10 +25,16 @@ jobs:
           node-version: 14
 
       - name: Install Frontend Dependencies & Run Tests
-        working-directory: ./front  # Spécifie le dossier front directement
+        working-directory: ./front
         run: |
           npm ci
           npm test -- --code-coverage --browsers=ChromeHeadless --watch=false
+        env:
+          CI: true  # Permet à Angular CLI de fonctionner en mode CI
+
+      - name: Move lcov.info to Backend Folder
+        run: |
+          mv front/coverage/bobapp/lcov.info back/coverage/lcov.info
 
       - name: Set up Java for Backend Analysis
         uses: actions/setup-java@v3
@@ -45,4 +51,5 @@ jobs:
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=Malck_P10_Fullstack_BobApp \
           -Dsonar.organization=malck \
-          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
