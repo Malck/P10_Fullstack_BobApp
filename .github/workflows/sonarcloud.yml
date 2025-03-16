@@ -34,6 +34,7 @@ jobs:
 
       - name: Move lcov.info to Backend Folder
         run: |
+          mkdir -p back/coverage  # Création du dossier s'il n'existe pas
           mv front/coverage/bobapp/lcov.info back/coverage/lcov.info
 
       - name: Set up Java for Backend Analysis
