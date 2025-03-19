@@ -75,7 +75,7 @@ jobs:
             cat front/coverage/bobapp/lcov.info
           fi
 
-      - name: Run SonarCloud Analysis (Frontend)
+      - name: Run SonarCloud for Frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
         run: |
@@ -84,6 +84,7 @@ jobs:
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=src \
-          -Dsonar.exclusions=node_modules/**,dist/** \
+          -Dsonar.exclusions=src/**/*.spec.ts,src/**/app.module.ts,node_modules/**,dist/** \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
 
