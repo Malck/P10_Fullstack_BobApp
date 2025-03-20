@@ -84,7 +84,9 @@ jobs:
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=src \
-          -Dsonar.exclusions=src/**/*.spec.ts,src/**/app.module.ts,node_modules/**,dist/** \
+          -Dsonar.tests=src \
+          -Dsonar.exclusions=src/environments/**,src/main.ts,src/test.ts \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
 
 
