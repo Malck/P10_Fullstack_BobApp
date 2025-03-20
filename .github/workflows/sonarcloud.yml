@@ -83,10 +83,11 @@ jobs:
           npx sonar-scanner -Dsonar.projectKey=malck_bobapp-frontend \
           -Dsonar.organization=malck \
           -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.sources=src \
-          -Dsonar.tests=src \
-          -Dsonar.exclusions=src/environments/**,src/main.ts,src/test.ts \
+          -Dsonar.sources=src/app \
+          -Dsonar.tests=src/app \
+          -Dsonar.exclusions=src/environments/**,src/main.ts,src/test.ts,src/styles.scss \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
+
 
 
 
