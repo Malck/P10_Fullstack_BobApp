@@ -85,6 +85,7 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.sources=src/app \
           -Dsonar.tests=src/app \
+          -Dsonar.test.inclusions=src/app/**/*.spec.ts \
           -Dsonar.exclusions=src/environments/**,src/main.ts,src/test.ts,src/styles.scss \
           -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info
 
